@@ -28,7 +28,12 @@ class AuthController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+
+    protected $loginView;
+
+    protected $username = 'login';
+
+    protected $redirectTo = '/admin';
 
     /**
      * Create a new authentication controller instance.
@@ -38,8 +43,22 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware($this->guestMiddleware(), ['except' => 'logout']);
+
+        // $this->middleware('guest')->except('logout');
+
+        $this->loginView = env('THEME').'.login';
     }
 
+    public function showLoginForm()
+    {
+        $view = property_exists($this, 'loginView') ? $this->loginView : '';
+
+        if (view()->exists($view)) {
+            return view($view)->with('title', 'Вход на сайт');
+        }
+
+        abort(404);
+    }
     /**
      * Get a validator for an incoming registration request.
      *
