@@ -11,6 +11,8 @@ use Corp\Repositories\ArticlesRepository;
 
 use Gate;
 
+use Corp\Category;
+
 
 class ArticlesController extends AdminController
 {
@@ -42,9 +44,6 @@ class ArticlesController extends AdminController
         $this->title = 'Менеджер статтей';
 
         $articles = $this->getArticles();
-
-        // dd($articles);
-
         $this->content = view(env('THEME') . '.admin.articles_content')->with('articles', $articles)->render();
 
 
@@ -66,7 +65,31 @@ class ArticlesController extends AdminController
      */
     public function create()
     {
-        //
+        if (Gate::denies('save', new \Corp\Article)) {
+            abort(403);
+        }
+
+        $this->title = "Добавить новый материал";
+
+        $categories = Category::select(['title', 'alias', 'parent_id', 'id'])->get();
+
+        // dd($categories);
+
+        $lists = array();
+
+        foreach ($categories as $category) {
+            if ($category->parent_id == 0) {
+                $lists[$category->title] = array();
+            } else {
+                $lists[$categories->where('id', $category->parent_id)->first()->title][$category->id] = $category->title;
+            }
+        }
+
+        // dd($lists);
+
+        $this->content = view(env('THEME') . '.admin.articles_create_content')->with('categories', $lists)->render();
+
+        return $this->renderOutput();
     }
 
     /**
