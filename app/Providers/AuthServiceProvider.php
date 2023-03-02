@@ -1,10 +1,12 @@
 <?php
 
 namespace Corp\Providers;
-use Corp\Article;
-use Corp\Policies\ArticlePolicy;
+
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+
+use Corp\Article;
+use Corp\Policies\ArticlePolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -14,7 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        Article::class => ArticlePolicy::class,
+        Article::class => ArticlePolicy::class
     ];
 
     /**

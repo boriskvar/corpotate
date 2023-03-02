@@ -3,6 +3,7 @@
 namespace Corp\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+use Corp\Http\Requests\ArticleRequest;
 
 use Corp\Http\Requests;
 use Corp\Http\Controllers\Controller;
@@ -73,8 +74,6 @@ class ArticlesController extends AdminController
 
         $categories = Category::select(['title', 'alias', 'parent_id', 'id'])->get();
 
-        // dd($categories);
-
         $lists = array();
 
         foreach ($categories as $category) {
@@ -84,8 +83,6 @@ class ArticlesController extends AdminController
                 $lists[$categories->where('id', $category->parent_id)->first()->title][$category->id] = $category->title;
             }
         }
-
-        // dd($lists);
 
         $this->content = view(env('THEME') . '.admin.articles_create_content')->with('categories', $lists)->render();
 
@@ -98,9 +95,16 @@ class ArticlesController extends AdminController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ArticleRequest $request)
     {
         //
+        $result = $this->a_rep->addArticle($request);
+
+        if (is_array($result) && !empty($result['error'])) {
+            return back()->with($result);
+        }
+
+        return redirect('/admin')->with($result);
     }
 
     /**
