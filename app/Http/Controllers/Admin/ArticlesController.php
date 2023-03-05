@@ -13,6 +13,7 @@ use Corp\Repositories\ArticlesRepository;
 use Gate;
 
 use Corp\Category;
+use Corp\Article;
 
 
 class ArticlesController extends AdminController
@@ -124,9 +125,38 @@ class ArticlesController extends AdminController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Article $article)
     {
         //
+        //$article = Article::where('alias', $alias);
+
+        // dd($article);
+
+        if (Gate::denies('edit', new Article)) {
+            abort(403);
+        }
+
+        $article->img = json_decode($article->img);
+
+
+        $categories = Category::select(['title', 'alias', 'parent_id', 'id'])->get();
+
+        $lists = array();
+
+        foreach ($categories as $category) {
+            if ($category->parent_id == 0) {
+                $lists[$category->title] = array();
+            } else {
+                $lists[$categories->where('id', $category->parent_id)->first()->title][$category->id] = $category->title;
+            }
+        }
+
+        $this->title = 'Реадактирование материала - ' . $article->title;
+
+
+        $this->content = view(env('THEME') . '.admin.articles_create_content')->with(['categories' => $lists, 'article' => $article])->render();
+
+        return $this->renderOutput();
     }
 
     /**
@@ -136,9 +166,12 @@ class ArticlesController extends AdminController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+
+    //   articles -> Article
+    public function update(ArticleRequest $request, Article $article)
     {
         //
+        dd($request);
     }
 
     /**
