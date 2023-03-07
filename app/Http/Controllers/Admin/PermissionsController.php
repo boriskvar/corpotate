@@ -22,14 +22,14 @@ class PermissionsController extends AdminController
     {
         parent::__construct();
 
-        if (Gate::denies('EDIT_USERS')) {
-            abort(403);
-        }
+        if(Gate::denies('EDIT_USERS')) {
+			abort(403);
+		}
 
         $this->per_rep = $per_rep;
         $this->rol_rep = $rol_rep;
 
-        $this->template = env('THEME') . '.admin.permissions';
+        $this->template = env('THEME').'.admin.permissions';
     }
     /**
      * Display a listing of the resource.
@@ -43,14 +43,9 @@ class PermissionsController extends AdminController
         $this->title = "Менеджер прав пользователей";
 
         $roles = $this->getRoles();
-
-        // dd($roles);
-
         $permissions = $this->getPermissions();
 
-        // dd($permissions);
-
-        $this->content = view(env('THEME') . '.admin.permissions_content')->with(['roles' => $roles, 'priv' => $permissions])->render();
+        $this->content = view(env('THEME').'.admin.permissions_content')->with(['roles'=>$roles,'priv' => $permissions])->render();
 
         return $this->renderOutput();
     }
@@ -88,6 +83,13 @@ class PermissionsController extends AdminController
     public function store(Request $request)
     {
         //
+		$result = $this->per_rep->changePermissions($request);
+
+		if(is_array($result) && !empty($result['error'])) {
+			return back()->with($result);
+		}
+
+		return back()->with($result);
     }
 
     /**
