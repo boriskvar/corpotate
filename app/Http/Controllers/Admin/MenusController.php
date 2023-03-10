@@ -5,6 +5,7 @@ namespace Corp\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 
 use Corp\Http\Requests;
+use Corp\Http\Requests\MenusRequest;
 use Corp\Http\Controllers\Controller;
 
 use Corp\Repositories\MenusRepository;
@@ -90,8 +91,6 @@ class MenusController extends AdminController
 
         $tmp = $this->getMenus()->roots();
 
-        // dd($tmp);
-
         //null
         $menus = $tmp->reduce(function ($returnMenus, $menu) {
 
@@ -99,11 +98,7 @@ class MenusController extends AdminController
             return $returnMenus;
         }, ['0' => 'Родительский пункт меню']);
 
-        // dd($menus);
-
         $categories = \Corp\Category::select(['title', 'alias', 'parent_id', 'id'])->get();
-
-        // dd($categories);
 
         $list = array();
         $list = array_add($list, '0', 'Не используется');
@@ -117,18 +112,13 @@ class MenusController extends AdminController
             }
         }
 
-        // dd($list);
-
         $articles = $this->a_rep->get(['id', 'title', 'alias']);
-
-        // dd($articles);
 
         $articles = $articles->reduce(function ($returnArticles, $article) {
             $returnArticles[$article->alias] = $article->title;
             return $returnArticles;
         }, []);
 
-        // dd($articles);
 
         $filters = \Corp\Filter::select('id', 'title', 'alias')->get()->reduce(function ($returnFilters, $filter) {
             $returnFilters[$filter->alias] = $filter->title;
@@ -153,9 +143,16 @@ class MenusController extends AdminController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(MenusRequest $request)
     {
         //
+        $result = $this->m_rep->addMenu($request);
+
+        if (is_array($result) && !empty($result['error'])) {
+            return back()->with($result);
+        }
+
+        return redirect('/admin')->with($result);
     }
 
     /**
